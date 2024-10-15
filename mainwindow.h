@@ -8,14 +8,14 @@
 #include <QMainWindow>
 #include <QPropertyAnimation>
 #include <QPushButton>
-#include <QTextBrowser>
 #include <QInputDialog>
 #include <iostream>
 #include "carqueue.h"
 #include "car.h"
 #include <QMouseEvent>
+
 //停车位总长度
-#define LONG 1000
+#define LONG 400
 
 
 
@@ -73,10 +73,10 @@ class MainWindow : public QMainWindow {
     Ui::MainWindow *ui;
     QPushButton *startButton;
     QPushButton *finishButton;
-    QPushButton* nameButton;
-    QPushButton* findButton;
-    QPushButton* showButton;
-    QPushButton* leaveButton;
+   // QPushButton* nameButton;
+    //QPushButton* findButton;
+    //QPushButton* showButton;
+    //QPushButton* leaveButton;
     QPixmap imagePixmap; // 用于存储图片
     QPixmap* imageTem;
     QPixmap imageWay;
@@ -110,10 +110,10 @@ class MainWindow : public QMainWindow {
     QWidget * VparkingWidget;
     QVBoxLayout *mainLayout; // 主垂直布局管理器
     QSpacerItem *verticalSpacer; // 垂直间隔控件
-    QTextBrowser* textBrowser;
-    QLineEdit* locationtextBrowser;
-    QLineEdit* name;
-    QLineEdit* leaveLocation;
+   // QTextBrowser* textBrowser;
+    //QLineEdit* locationtextBrowser;
+    //QLineEdit* name;
+    //QLineEdit* leaveLocation;
     QWidget *ButtonWeight;
 
     //停车位

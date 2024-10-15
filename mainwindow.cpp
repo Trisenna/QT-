@@ -1,12 +1,7 @@
 #include "mainwindow.h"
-#include "./ui_mainwindow.h"
-#include "mainwindow.h"
+#include "ui_mainwindow.h"
 
 #include <QtCore>
-
-
-
-
 
 
 //0为停车位进车，2为队列进车，1为只有停车位出车，3为停车位出车，队列进车
@@ -15,20 +10,26 @@ static int start = 0;
 static int position = 0;
 //变化的队列位置
 static int lineNum = 0;
-static int ip = 1;
+//static int ip = 1;
 
-MainWindow::MainWindow(int MAXSIZE1, int Maxqueue1, QWidget *parent) : QMainWindow(parent) {
+MainWindow::MainWindow(int MAXSIZE1, int Maxqueue1, QWidget *parent) : QMainWindow(parent)  ,
+     ui(new Ui::MainWindow)
+{
+
+    ui->setupUi(this);
+
     this->MAXSIZE = MAXSIZE1;
     this->Maxqueue = Maxqueue1;
-    setWindowTitle("Animation Example");
-    this->setGeometry(50, 150, 1300, 700);
+    setWindowTitle("停车场管理系统");
 
     //按钮的数组
-    //横向
+    //车库
     QPushButton* locate[MAXSIZE];
-    //纵向
+    //便道
     QPushButton* locate2[Maxqueue];
     //动画使用的数组及其长宽高,停车场总长度为LONG,最大停车数MAX
+
+
     //定义每一个停车位的长度
     parkingLong = LONG / MAXSIZE;
     parkingWid = 30 * parkingLong / 54;
@@ -41,12 +42,8 @@ MainWindow::MainWindow(int MAXSIZE1, int Maxqueue1, QWidget *parent) : QMainWind
 // 创建按钮布局
     ButtonLayout = new QHBoxLayout();
 
-// 创建并添加按钮到布局
-    nameButton = new QPushButton("进入", this);
-    findButton = new QPushButton("查找", this);
-    showButton = new QPushButton("展示", this);
-    leaveButton = new QPushButton("离开", this);
-//用于显示停车位
+
+    // 初始化停车位按钮
     for(int i = 1; i <= MAXSIZE; i++) {
         QString s = "停车位";
         s.append(QString::number(i));
@@ -78,28 +75,12 @@ MainWindow::MainWindow(int MAXSIZE1, int Maxqueue1, QWidget *parent) : QMainWind
 
 
 
-// 创建并添加文本框到布局
-    locationtextBrowser = new QLineEdit(this);
-    name = new QLineEdit(this);
-    leaveLocation = new QLineEdit(this);
-//初始化汽车容器
+
+    //初始化汽车容器
     for(int i = 0; i < MAXSIZE; i++) {
         Car* newCar = new Car("", -1, QDateTime::currentDateTime());
         carArray.insert(carArray.begin() + i, *newCar);
     }
-
-
-    ButtonLayout->addWidget(nameButton);
-    ButtonLayout->addWidget(name);
-
-    ButtonLayout->addWidget(findButton);
-    ButtonLayout->addWidget(locationtextBrowser);
-
-    ButtonLayout->addWidget(leaveButton);
-    ButtonLayout->addWidget(leaveLocation);
-
-    ButtonLayout->addWidget(showButton);
-
 
 
 
@@ -125,15 +106,9 @@ MainWindow::MainWindow(int MAXSIZE1, int Maxqueue1, QWidget *parent) : QMainWind
     finishButton = new QPushButton("Finish", this);
     finishButton->setGeometry(-200, 10, 150, 30);
 
-    //显示框
-    textBrowser = new QTextBrowser(this);
 
     startButton->setVisible(false);
     finishButton->setVisible(false);
-
-
-    textBrowser->setGeometry(200, 300, 1000, 300);
-
 
     //开始位置的小车图片
     tem = new QLabel(this);
@@ -339,9 +314,9 @@ MainWindow::MainWindow(int MAXSIZE1, int Maxqueue1, QWidget *parent) : QMainWind
             animationGroup.stop();
             animationGroup.clear();
             // 创建新的动画
-            animation = new QPropertyAnimation(imageLabel, "geometry");
+            animation = new QPropertyAnimation(imageLabel, "geometry", this);
             animation->setDuration(1000);
-            animation2 = new QPropertyAnimation(imageLabel, "geometry");
+            animation2 = new QPropertyAnimation(imageLabel, "geometry", this);
             animation2->setDuration(300);
 
 
@@ -390,11 +365,14 @@ MainWindow::MainWindow(int MAXSIZE1, int Maxqueue1, QWidget *parent) : QMainWind
 
         }
     });
-    connect(nameButton, SIGNAL(clicked()), this, SLOT(onNameButtonClicked()));
-    connect(findButton, SIGNAL(clicked()), this, SLOT(onFindButtonClicked()));
-    connect(showButton, SIGNAL(clicked()), this, SLOT(onShowButtonClicked()));
-    connect(leaveButton, SIGNAL(clicked()), this, SLOT(onLeaveButtonClicked()));
+    connect(ui->pushButton, SIGNAL(clicked()), this, SLOT(onNameButtonClicked()));
+    connect(ui->pushButton_2, SIGNAL(clicked()), this, SLOT(onFindButtonClicked()));
+    connect(ui->pushButton_8, SIGNAL(clicked()), this, SLOT(onShowButtonClicked()));
+    connect(ui->pushButton_4, SIGNAL(clicked()), this, SLOT(onLeaveButtonClicked()));
 }
+
+
+
 // 在类的实现文件中实现槽函数
 void MainWindow::onNameButtonClicked() {
     // 在这里编写与 "进入" 按钮相关的操作
@@ -408,9 +386,9 @@ void MainWindow::onFindButtonClicked() {
 
 void MainWindow::onShowButtonClicked() {
     // 在这里编写与 "展示" 按钮相关的操作
-//    showCar();
-    ip++;
-    tem->move(100 * ip, 500);
+    showCar();
+    //ip++;
+   // tem->move(100 * ip, 500);
 }
 
 void MainWindow::onLeaveButtonClicked() {
@@ -425,10 +403,10 @@ MainWindow::~MainWindow() {
 //0为停车位进车，2为队列进车，1为只有停车位出车，3为停车位出车，队列进车
 
 void MainWindow::createCar() {
-    QString st = name->text();
+    QString st = ui->lineEdit->text();
     if(st != "") {
         Car* newCar = new Car(st, -1, QDateTime::currentDateTime());
-        name->clear();
+        ui->lineEdit->clear();
 
 
         // 检查数组是否已满
@@ -446,10 +424,10 @@ void MainWindow::createCar() {
 
                 lineNum++;
                 carQueuel.insert(newCar);
-                textBrowser->append("停车场已满," + st + "进入等候队列\n");
+                ui->listWidget->addItem("停车场已满," + st + "进入等候队列\n");
                 startButton->click();
             } else {
-                textBrowser->append("停车场已满，队列已满，禁止进入\n");
+               ui->listWidget->addItem("停车场已满，队列已满，禁止进入\n");
             }
 
         } else {
@@ -465,7 +443,7 @@ void MainWindow::createCar() {
                     carArray[i].location = newCar->location;
                     carArray[i].license = newCar->license;
                     parkingSpaces[i] = true;
-                    textBrowser->append(carArray[i].license + "加入成功\n");
+                    ui->listWidget->addItem(carArray[i].license + "加入成功\n");
                     break;
                 }
                 i++;
@@ -489,7 +467,7 @@ void MainWindow::addCar() {
                 carArray[i].location = c->location;
                 carArray[i].license = c->license;
                 parkingSpaces[i] = true;
-                textBrowser->append(c->license + "加入成功\n");
+                ui->listWidget->addItem(c->license + "加入成功\n");
                 break;
             }
             i++;
@@ -498,10 +476,10 @@ void MainWindow::addCar() {
     }
 }
 void MainWindow::deleteCar() {
-    QString s = leaveLocation->text();
+    QString s = ui->lineEdit->text();
     bool ok;
     int i = s.toInt(&ok);
-    leaveLocation->clear();
+    ui->lineEdit->clear();
 
     if (ok && i > 0 && i <= MAXSIZE) {
         i--;
@@ -516,7 +494,7 @@ void MainWindow::deleteCar() {
             int secondsParked = entryTime.secsTo(currentTime);
             int cost = secondsParked; // 一秒钟一块钱的费率
 
-            textBrowser->append("第" + QString::number(i + 1) + "辆车    " + "车牌号:" + carArray[i].license + "    已出库，停车时长：" + QString::number(secondsParked) + "秒，费用：" + QString::number(cost) + "元\n");
+            ui->listWidget->addItem("第" + QString::number(i + 1) + "辆车    " + "车牌号:" + carArray[i].license + "    已出库，停车时长：" + QString::number(secondsParked) + "秒，费用：" + QString::number(cost) + "元\n");
             // 标记车辆为无效或已删除，而不是从 std::vector 中删除
             carArray[i].license = ""; // 或者其他方式标记为无效
             carArray[i].location = -1; // 或者其他方式标记为无效
@@ -526,49 +504,49 @@ void MainWindow::deleteCar() {
             finishButton->click();
 
         } else {
-            textBrowser->append("此处无车");
+            ui->listWidget->addItem("此处无车");
         }
     } else {
-        textBrowser->append("无效的整数字符串");
+        ui->listWidget->addItem("无效的整数字符串");
     }
 }
 void MainWindow::showCar() {
     int num = 0;
     carQueuel.show();
-    textBrowser->append("----------------------------------------------");
-    textBrowser->append("停车位:\n");
+    ui->listWidget->addItem("----------------------------------------------");
+    ui->listWidget->addItem("停车位:\n");
     for (int i = 0; i < MAXSIZE; i++) {
         if (parkingSpaces[i]) {
             num++;
-            textBrowser->append("第" + QString::number(i + 1) + "个停车位    " + "车牌号:" + carArray[i].license + "     入库时间:"  + carArray[i].entreTime.toString("yyyy-MM-dd HH:mm:ss") + "\n");
+            ui->listWidget->addItem("第" + QString::number(i + 1) + "个停车位    " + "车牌号:" + carArray[i].license + "     入库时间:"  + carArray[i].entreTime.toString("yyyy-MM-dd HH:mm:ss") + "\n");
         }
     }
     if(num == 0) {
-        textBrowser->append("无车\n");
+        ui->listWidget->addItem("无车\n");
     }
 
-    textBrowser->append("等候位:\n");
+    ui->listWidget->addItem("等候位:\n");
     Car* tem = carQueuel.getHead();
     int i = 1;
     if(tem != NULL) {
         while (tem != NULL) {
             if (!tem->license.isEmpty() && tem->entreTime.isValid()) {
-                textBrowser->append("第" + QString::number(i) + "辆等候车辆    " + "车牌号:" + tem->license  + "\n");
+                ui->listWidget->addItem("第" + QString::number(i) + "辆等候车辆    " + "车牌号:" + tem->license  + "\n");
                 i++;
             }
             tem = tem->next;
         }
     } else {
-        textBrowser->append("无车\n");
+        ui->listWidget->addItem("无车\n");
     }
 
-    textBrowser->append("停车场内有:" + QString::number(num));
-    textBrowser->append("剩余位置:" + QString::number(MAXSIZE - num));
-    textBrowser->append("----------------------------------------------");
+    ui->listWidget->addItem("停车场内有:" + QString::number(num));
+    ui->listWidget->addItem("剩余位置:" + QString::number(MAXSIZE - num));
+    ui->listWidget->addItem("----------------------------------------------");
 }
 void MainWindow::findCar() {
-    QString s = locationtextBrowser->text();
-    locationtextBrowser->clear();
+    QString s = ui->lineEdit->text();
+    ui->lineEdit->clear();
     // 用于判断转换是否成功
     bool ok = false;
 
@@ -577,12 +555,12 @@ void MainWindow::findCar() {
         if (parkingSpaces[i]) {
             if(s == carArray[i].license) {
                 ok = true;
-                textBrowser->append("第" + QString::number(i + 1) + "个停车位    " + "车牌号:" + carArray[i].license + "     入库时间:"  + carArray[i].entreTime.toString("yyyy-MM-dd HH:mm:ss") + "\n");
+                ui->listWidget->addItem("第" + QString::number(i + 1) + "个停车位    " + "车牌号:" + carArray[i].license + "     入库时间:"  + carArray[i].entreTime.toString("yyyy-MM-dd HH:mm:ss") + "\n");
             }
         }
     }
     if(!ok) {
-        textBrowser->append("无效车牌号\n");
+        ui->listWidget->addItem("无效车牌号\n");
     }
 
 }
@@ -608,11 +586,11 @@ void MainWindow::onButtonClickedP() {
         int number = numberString.toInt(&ok);
 
         if (ok && parkingSpaces[number - 1]) {
-            textBrowser->append("----------------------------------------------------------\n");
-            textBrowser->append("第" + QString::number(number) + "个停车位    " + "车牌号:" + carArray[number - 1].license + "     入库时间:"  + carArray[number - 1].entreTime.toString("yyyy-MM-dd HH:mm:ss") + "\n");
+            ui->listWidget->addItem("----------------------------------------------------------\n");
+            ui->listWidget->addItem("第" + QString::number(number) + "个停车位    " + "车牌号:" + carArray[number - 1].license + "     入库时间:"  + carArray[number - 1].entreTime.toString("yyyy-MM-dd HH:mm:ss") + "\n");
         } else {
-            textBrowser->append("----------------------------------------------------------\n");
-            textBrowser->append("此处无车\n");
+            ui->listWidget->addItem("----------------------------------------------------------\n");
+            ui->listWidget->addItem("此处无车\n");
         }
     }
 }
@@ -633,16 +611,16 @@ void MainWindow::onButtonClickedW() {
                     tem = tem->next;
                     temNumber--;
                 }
-                textBrowser->append("----------------------------------------------------------\n");
-                textBrowser->append("第" + numberString + "辆等候车辆    " + "车牌号:" + tem->license  + "\n");
+                ui->listWidget->addItem("----------------------------------------------------------\n");
+                ui->listWidget->addItem("第" + numberString + "辆等候车辆    " + "车牌号:" + tem->license  + "\n");
 
             } else {
-                textBrowser->append("----------------------------------------------------------\n");
-                textBrowser->append("此处无车\n");
+                ui->listWidget->addItem("----------------------------------------------------------\n");
+                ui->listWidget->addItem("此处无车\n");
             }
         } else {
-            textBrowser->append("----------------------------------------------------------\n");
-            textBrowser->append("此处无车\n");
+            ui->listWidget->addItem("----------------------------------------------------------\n");
+            ui->listWidget->addItem("此处无车\n");
         }
     }
 
