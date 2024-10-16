@@ -45,27 +45,44 @@ MainWindow::MainWindow(int MAXSIZE1, int Maxqueue1, QWidget *parent) : QMainWind
 
     // 初始化停车位按钮
     for(int i = 1; i <= MAXSIZE; i++) {
-        QString s = "停车位";
+        QString s = "停";
         s.append(QString::number(i));
         locate[i - 1] = new QPushButton(this);
+        // 设置按钮的文本为 "停车位" 加上编号
         locate[i - 1]->setText(s);
+        // 调整按钮的大小
         locate[i - 1]->resize(parkingLong, parkingWid);
-        locate[i - 1]->setGeometry((i - 1)*parkingLong + 200, 150, parkingLong, parkingWid);
-
-        // 设置按钮遮罩
+        // 设置按钮的位置
+        if (i <= MAXSIZE / 2) {
+            // 上排
+            locate[i - 1]->setGeometry((i - 1) * parkingLong + 120, 50, parkingLong, parkingWid);
+        } else {
+            // 下排
+            locate[i - 1]->setGeometry((i - 1 - MAXSIZE / 2) * parkingLong + 120, 100 + parkingWid, parkingLong, parkingWid);
+        }
+        // 设置按钮遮罩（使得只有定义的区域可点击）
         QRect rect(0, 0,  parkingLong, parkingWid);
         QRegion region(rect, QRegion::Rectangle);
         locate[i - 1]->setMask(region);
+        // 连接按钮的点击信号到槽函数 onButtonClickedP
         connect(locate[i - 1], &QPushButton::clicked, this, &MainWindow::onButtonClickedP);
     }
+
+    //便道
     for(int i = 1; i <= Maxqueue; i++) {
-        QString s = "候车位";
+        QString s = "候";
         s.append(QString::number(i));
         locate2[i - 1] = new QPushButton(this);
         locate2[i - 1]->setText(s);
         locate2[i - 1]->resize(parkingWid, parkingLong);
-        locate2[i - 1]->setGeometry(0, parkingLong * i, parkingWid, parkingLong);
-
+        // 设置按钮的位置
+        if (i == 1) {
+            // 第一辆车的位置在停车库上下两排的中间
+            locate2[i - 1]->setGeometry(40, 75 + parkingWid / 2, parkingWid, parkingLong);
+        } else {
+            // 其他车的位置
+            locate2[i - 1]->setGeometry(40, 75 + parkingWid / 2 + parkingLong * (i - 1), parkingWid, parkingLong);
+        }
         // 设置按钮遮罩
         QRect rect(0, 0, parkingWid, parkingLong);
         QRegion region(rect, QRegion::Rectangle);
@@ -101,14 +118,14 @@ MainWindow::MainWindow(int MAXSIZE1, int Maxqueue1, QWidget *parent) : QMainWind
     VparkingWidget->setGeometry(50, 100, 100, 500);
 
     //隐藏起的按钮
-    startButton = new QPushButton("Start Animation", this);
-    startButton->setGeometry(-10, 10, 150, 30);
+    startButton = new QPushButton("Start", this);
+    startButton->setGeometry(10, 10, 50, 30);
     finishButton = new QPushButton("Finish", this);
-    finishButton->setGeometry(-200, 10, 150, 30);
+    finishButton->setGeometry(200, 10, 50, 30);
 
 
-    startButton->setVisible(false);
-    finishButton->setVisible(false);
+   // startButton->setVisible(false);
+   // finishButton->setVisible(false);
 
     //开始位置的小车图片
     tem = new QLabel(this);
@@ -118,7 +135,7 @@ MainWindow::MainWindow(int MAXSIZE1, int Maxqueue1, QWidget *parent) : QMainWind
     tem->setGeometry(10, 50, parkingLong, parkingWid);
     QPixmap newPixmap(":car1.png");
     QPixmap newPixmap2(":car2.png");
-    QPixmap newPixmap3(":P.jpg");
+    //QPixmap newPixmap3(":P.jpg");
     newPixmap = newPixmap.scaled(parkingLong, parkingWid);
     newPixmap2 = newPixmap2.scaled(parkingWid, parkingLong);
     temLable = new QLabel(this);
@@ -131,7 +148,7 @@ MainWindow::MainWindow(int MAXSIZE1, int Maxqueue1, QWidget *parent) : QMainWind
     imageLabel->setScaledContents(true);
     temLable->setScaledContents(true);
 
-    tem->setPixmap(newPixmap3);
+   // tem->setPixmap(newPixmap3);
     imageLabel->setVisible(false);
     temLable->setVisible(false);
 
@@ -142,47 +159,80 @@ MainWindow::MainWindow(int MAXSIZE1, int Maxqueue1, QWidget *parent) : QMainWind
     previousImagesList2 = new QList<QLabel *>();
     previousImagesList4 = new QList<QLabel *>();
     previousImagesList3 = new QList<QLabel *>();
+
+    //停车位的车辆图片
     for(int i = 0; i < MAXSIZE; i++) {
         previousImage = new QLabel(this);
         previousImage->setPixmap(imageLabel->pixmap());
-        previousImage->setGeometry(200 + parkingLong * i, 150, parkingLong, parkingWid);
+        if(i<MAXSIZE/2) {
+            previousImage->setGeometry(120 + parkingLong * i, 50, parkingLong, parkingWid);
+        } else {
+            previousImage->setGeometry(120 + parkingLong * (i-MAXSIZE/2), 100 + parkingWid, parkingLong, parkingWid);
+        }
+
         previousImage->setVisible(false);
 
         previousImagesList->append(previousImage);
     }
-    //隐藏的图片
+    //便道的车辆图片
     for(int i = 0; i < Maxqueue; i++) {
         previousImage = new QLabel(this);
         previousImage->setPixmap(temLable->pixmap());
-        previousImage->setGeometry(0, parkingLong * (i + 1), parkingWid, parkingLong);
+
+        if (i == 0) {
+            // 第一辆车的位置在停车库上下两排的中间
+            previousImage->setGeometry(40, 75 + parkingWid / 2, parkingWid, parkingLong);
+        } else {
+            // 其他车的位置
+            previousImage->setGeometry(40, 75 + parkingWid / 2 + parkingLong * i, parkingWid, parkingLong);
+        }
         previousImage->setVisible(false);
         previousImagesList2->append(previousImage);
     }
 
-    //0为停车位进车，2为队列进车，1为只有停车位出车，3为停车位出车，队列进车
 
+    //start ：0为停车位进车，2为队列进车，1为只有停车位出车，3为停车位出车，队列进车
     connect(startButton, &QPushButton::clicked, [this]() {
 
+
+        //0为停车位进车
         if(previousImagesList3->size() < MAXSIZE) {
             //将动画的图片显示
             imageLabel->setVisible(true);
-
+            temLable->setVisible(true);
             start = 0;
             // 停止并清空之前的动画组
             animationGroup.stop();
             animationGroup.clear();
 
             // 创建新的动画
-            animation = new QPropertyAnimation(imageLabel, "geometry");
-            animation->setDuration(1000);
-            animation->setStartValue(QRect(-100, 50, parkingLong, parkingWid));
-            animation2 = new QPropertyAnimation(imageLabel, "geometry");
-            animation2->setDuration(300);
-            animation->setEndValue(QRect(200 + parkingLong * position, 50, parkingLong, parkingWid));
-            animation2->setStartValue(QRect(200 + parkingLong * position, 50, parkingLong, parkingWid));
-            animation2->setEndValue(QRect(200 + parkingLong * position, 150, parkingLong, parkingWid));
-            // 添加新的动画到动画组
+            animation0 = new QPropertyAnimation(temLable, "geometry");
+           animation0->setDuration(2000);
+           animation0->setStartValue(QRect(40, 1000, parkingWid, parkingLong));
+            animation0->setEndValue(QRect(40, 80, parkingWid, parkingLong));
 
+
+            animation = new QPropertyAnimation(imageLabel, "geometry");
+            animation->setDuration(1500);
+            animation->setStartValue(QRect(20, 100, parkingLong, parkingWid));
+            animation2 = new QPropertyAnimation(imageLabel, "geometry");
+            animation2->setDuration(1000);
+            animation->setEndValue(QRect(120 + parkingLong * (position % (MAXSIZE / 2)), 100, parkingLong, parkingWid));
+            animation2->setStartValue(QRect(120 + parkingLong * (position % (MAXSIZE / 2)), 100, parkingLong, parkingWid));
+            int yCoordinate;
+
+if (position < MAXSIZE / 2) {
+    // 第一排
+    yCoordinate = 50;
+} else {
+    // 第二排
+    yCoordinate = 100 + parkingWid;
+}
+
+animation2->setEndValue(QRect(120 + parkingLong * (position % (MAXSIZE / 2)), yCoordinate, parkingLong, parkingWid));
+
+            // 添加新的动画到动画组
+           animationGroup.addAnimation(animation0);
             animationGroup.addAnimation(animation);
             animationGroup.addAnimation(animation2);
 
@@ -191,10 +241,9 @@ MainWindow::MainWindow(int MAXSIZE1, int Maxqueue1, QWidget *parent) : QMainWind
 
         }
 
+        //2为便道队列进车
         else if(previousImagesList4->size() <= Maxqueue) {
             temLable->setVisible(true);
-
-            //临时停车道进车
             start = 2;
             // 停止并清空之前的动画组
             animationGroup.stop();
@@ -202,9 +251,9 @@ MainWindow::MainWindow(int MAXSIZE1, int Maxqueue1, QWidget *parent) : QMainWind
 
             // 创建新的动画
             animation = new QPropertyAnimation(temLable, "geometry");
-            animation->setDuration(1000);
-            animation->setStartValue(QRect(0, 1000, parkingWid, parkingLong));
-            animation->setEndValue(QRect(0, parkingLong * lineNum, parkingWid, parkingLong));
+            animation->setDuration(3000);
+            animation->setStartValue(QRect(40, 1000, parkingWid, parkingLong));
+            animation->setEndValue(QRect(40, parkingLong * lineNum, parkingWid, parkingLong));
 
             // 添加新的动画到动画组
             animationGroup.addAnimation(animation);
@@ -219,11 +268,17 @@ MainWindow::MainWindow(int MAXSIZE1, int Maxqueue1, QWidget *parent) : QMainWind
     connect(&animationGroup, &QSequentialAnimationGroup::finished, [this]() {
         //利用start实现只有当开始按钮被点击后才有图片添加
         if(start == 0) {
+
+            //从入口由便道进入第一个候车位
+
             previousImage = new QLabel(this);
             previousImage->setPixmap(imageLabel->pixmap());
             previousImage->setGeometry(200 + parkingLong * position, 150, parkingLong, parkingWid);
             previousImage->setVisible(false);
+
             previousImagesList3->append(previousImage);
+
+            //显示相应位置的图片：
             previousImagesList->at(position)->setVisible(true);
 
             // 更新布局
@@ -243,7 +298,7 @@ MainWindow::MainWindow(int MAXSIZE1, int Maxqueue1, QWidget *parent) : QMainWind
         } else if(start == 3) {
             previousImage = new QLabel(this);
             previousImage->setPixmap(imageLabel->pixmap());
-            previousImage->setGeometry(200 + parkingLong * position, 150, parkingLong, parkingWid);
+            previousImage->setGeometry(200 + parkingLong * position, 100, parkingLong, parkingWid);
             previousImage->setVisible(false);
             previousImagesList3->append(previousImage);
             previousImagesList->at(position)->setVisible(true);
@@ -259,8 +314,6 @@ MainWindow::MainWindow(int MAXSIZE1, int Maxqueue1, QWidget *parent) : QMainWind
         temLable->setVisible(false);
 
     });
-
-
 
 
     //离开动画
@@ -365,6 +418,7 @@ MainWindow::MainWindow(int MAXSIZE1, int Maxqueue1, QWidget *parent) : QMainWind
 
         }
     });
+
     connect(ui->pushButton, SIGNAL(clicked()), this, SLOT(onNameButtonClicked()));
     connect(ui->pushButton_2, SIGNAL(clicked()), this, SLOT(onFindButtonClicked()));
     connect(ui->pushButton_8, SIGNAL(clicked()), this, SLOT(onShowButtonClicked()));

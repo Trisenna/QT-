@@ -15,7 +15,7 @@
 #include <QMouseEvent>
 
 //停车位总长度
-#define LONG 400
+#define LONG 600
 
 
 
@@ -73,10 +73,6 @@ class MainWindow : public QMainWindow {
     Ui::MainWindow *ui;
     QPushButton *startButton;
     QPushButton *finishButton;
-   // QPushButton* nameButton;
-    //QPushButton* findButton;
-    //QPushButton* showButton;
-    //QPushButton* leaveButton;
     QPixmap imagePixmap; // 用于存储图片
     QPixmap* imageTem;
     QPixmap imageWay;
@@ -87,6 +83,7 @@ class MainWindow : public QMainWindow {
     QLabel *imageWayLable;
     QLabel *imageWayLable2;
     QLabel*tem;
+    QPropertyAnimation *animation0;
     QPropertyAnimation *animation;
     QPropertyAnimation *animation2;
 
@@ -110,10 +107,6 @@ class MainWindow : public QMainWindow {
     QWidget * VparkingWidget;
     QVBoxLayout *mainLayout; // 主垂直布局管理器
     QSpacerItem *verticalSpacer; // 垂直间隔控件
-   // QTextBrowser* textBrowser;
-    //QLineEdit* locationtextBrowser;
-    //QLineEdit* name;
-    //QLineEdit* leaveLocation;
     QWidget *ButtonWeight;
 
     //停车位
