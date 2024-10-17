@@ -290,7 +290,7 @@ MainWindow::MainWindow(int MAXSIZE1, int Maxqueue1, QWidget *parent) : QMainWind
     });
 
     //当动画结束后将当前图片固定在结束位置
-    //0为停车位进车，2为队列进车，1为只有停车位出车，3为停车位出车，队列进车
+    //0为停车位进车，1为只有停车位出车，2为队列进车，3为停车位出车，队列进车
 
     // 连接动画完成信号到槽函数
     connect(&animationGroup, &QSequentialAnimationGroup::finished, [this]() {
@@ -476,12 +476,14 @@ MainWindow::MainWindow(int MAXSIZE1, int Maxqueue1, QWidget *parent) : QMainWind
 
             //从队列入库动画
               animation = new QPropertyAnimation(imageLabel, "geometry");
-              animation->setDuration(1000);
+              animation->setDuration(200);
               animation->setStartValue(QRect(40, 75 + parkingWid / 2 , parkingWid, parkingLong));
               animation->setEndValue(QRect(120 + parkingLong * (position % (MAXSIZE / 2)), 100, parkingLong, parkingWid));
+            // 添加缓动曲线以使过渡更平滑
+           // animation->setEasingCurve(QEasingCurve::InOutQuad);
 
               animation2 = new QPropertyAnimation(imageLabel, "geometry");
-              animation2->setDuration(100);
+              animation2->setDuration(200);
               animation2->setStartValue(QRect(120 + parkingLong * (position % (MAXSIZE / 2)), 100, parkingLong, parkingWid));
               if (position < MAXSIZE / 2) {
                   // First row
@@ -555,7 +557,7 @@ void MainWindow::onFindButtonClicked() {
 }
 
 void MainWindow::onShowButtonClicked() {
-    // 在这里编写与 "展示" 按钮相关的操作
+    // 在这里编写与 "车库余位查询" 按钮相关的操作
     showCar();
     //ip++;
    // tem->move(100 * ip, 500);
@@ -566,10 +568,11 @@ void MainWindow::onLeaveButtonClicked() {
     deleteCar();
     addCar();
 }
-
+//析构函数
 MainWindow::~MainWindow() {
     delete ui;
 }
+
 //0为停车位进车，2为队列进车，1为只有停车位出车，3为停车位出车，队列进车
 
 void MainWindow::createCar() {
@@ -594,10 +597,10 @@ void MainWindow::createCar() {
 
                 lineNum++;
                 carQueuel.insert(newCar);
-                ui->listWidget->addItem("停车场已满," + st + "进入等候队列\n");
+                ui->listWidget->addItem("停车场已满," + st + "进入便道\n");
                 startButton->click();
             } else {
-               ui->listWidget->addItem("停车场已满，队列已满，禁止进入\n");
+               ui->listWidget->addItem("停车场已满，便道已满，禁止进入\n");
             }
 
         } else {
@@ -613,7 +616,7 @@ void MainWindow::createCar() {
                     carArray[i].location = newCar->location;
                     carArray[i].license = newCar->license;
                     parkingSpaces[i] = true;
-                    ui->listWidget->addItem(carArray[i].license + "加入成功\n");
+                    ui->listWidget->addItem(carArray[i].license + "进入停车场\n");
                     break;
                 }
                 i++;
@@ -637,7 +640,7 @@ void MainWindow::addCar() {
                 carArray[i].location = c->location;
                 carArray[i].license = c->license;
                 parkingSpaces[i] = true;
-                ui->listWidget->addItem(c->license + "加入成功\n");
+                ui->listWidget->addItem(c->license + "进入停车场\n");
                 break;
             }
             i++;
@@ -662,9 +665,10 @@ void MainWindow::deleteCar() {
             QDateTime currentTime = QDateTime::currentDateTime();
             QDateTime entryTime = carArray[i].entreTime;
             int secondsParked = entryTime.secsTo(currentTime);
-            int cost = secondsParked; // 一秒钟一块钱的费率
+            int cost = secondsParked*0.1; // 一秒钟一块钱的费率
 
-            ui->listWidget->addItem("第" + QString::number(i + 1) + "辆车    " + "车牌号:" + carArray[i].license + "    已出库，停车时长：" + QString::number(secondsParked) + "秒，费用：" + QString::number(cost) + "元\n");
+            ui->listWidget->addItem("第" + QString::number(i + 1) + "辆车    " + "车牌号:" + carArray[i].license + "    离开"
+              "\n停：" + QString::number(secondsParked) + "秒,缴费：" + QString::number(cost) + "元\n");
             // 标记车辆为无效或已删除，而不是从 std::vector 中删除
             carArray[i].license = ""; // 或者其他方式标记为无效
             carArray[i].location = -1; // 或者其他方式标记为无效
@@ -684,7 +688,7 @@ void MainWindow::showCar() {
     int num = 0;
     carQueuel.show();
     ui->listWidget->addItem("----------------------------------------------");
-    ui->listWidget->addItem("停车位:\n");
+    ui->listWidget->addItem("停车场:\n");
     for (int i = 0; i < MAXSIZE; i++) {
         if (parkingSpaces[i]) {
             num++;
@@ -695,7 +699,7 @@ void MainWindow::showCar() {
         ui->listWidget->addItem("无车\n");
     }
 
-    ui->listWidget->addItem("等候位:\n");
+    ui->listWidget->addItem("便道上:\n");
     Car* tem = carQueuel.getHead();
     int i = 1;
     if(tem != NULL) {
@@ -710,29 +714,58 @@ void MainWindow::showCar() {
         ui->listWidget->addItem("无车\n");
     }
 
-    ui->listWidget->addItem("停车场内有:" + QString::number(num));
-    ui->listWidget->addItem("剩余位置:" + QString::number(MAXSIZE - num));
+    ui->listWidget->addItem("停车场内有:" + QString::number(num)+ "辆车");
+    ui->listWidget->addItem("剩余位置:" + QString::number(MAXSIZE - num)+ "个");
     ui->listWidget->addItem("----------------------------------------------");
 }
 void MainWindow::findCar() {
     QString s = ui->lineEdit->text();
     ui->lineEdit->clear();
-    // 用于判断转换是否成功
     bool ok = false;
 
+    // Check if the input is a valid integer (parking space number)
+    bool isNumber;
+    int parkingSpace = s.toInt(&isNumber);
 
-    for (int i = 0; i < MAXSIZE; i++) {
-        if (parkingSpaces[i]) {
-            if(s == carArray[i].license) {
+    if (isNumber && parkingSpace > 0 && parkingSpace <= MAXSIZE) {
+        // Query by parking space number
+        int index = parkingSpace - 1;
+        if (parkingSpaces[index]) {
+            ok = true;
+            ui->listWidget->addItem("第" + QString::number(parkingSpace) + "个停车位    " + "车牌号:" + carArray[index].license + "     入库时间:"  + carArray[index].entreTime.toString("yyyy-MM-dd HH:mm:ss") + "\n");
+        } else {
+            ui->listWidget->addItem("----------------------------------------------------------\n");
+            ui->listWidget->addItem("此处无车\n");
+        }
+    } else {
+        // Query by license plate number
+        for (int i = 0; i < MAXSIZE; i++) {
+            if (parkingSpaces[i] && s == carArray[i].license) {
                 ok = true;
                 ui->listWidget->addItem("第" + QString::number(i + 1) + "个停车位    " + "车牌号:" + carArray[i].license + "     入库时间:"  + carArray[i].entreTime.toString("yyyy-MM-dd HH:mm:ss") + "\n");
+                break;
+            }
+        }
+
+        // If not found in parking spaces, check the queue
+        if (!ok) {
+            Car* tem = carQueuel.getHead();
+            int i = 1;
+            while (tem != NULL) {
+                if (s == tem->license) {
+                    ok = true;
+                    ui->listWidget->addItem("第" + QString::number(i) + "辆等候车辆    " + "车牌号:" + tem->license  + "\n");
+                    break;
+                }
+                tem = tem->next;
+                i++;
             }
         }
     }
-    if(!ok) {
-        ui->listWidget->addItem("无效车牌号\n");
-    }
 
+    if (!ok) {
+        ui->listWidget->addItem("无效的车牌号或车位号\n");
+    }
 }
 int MainWindow::getCarNum() {
     int i = 0;
@@ -763,7 +796,7 @@ void MainWindow::onButtonClickedP() {
             ui->listWidget->addItem("此处无车\n");
         }
     }
-}
+}//从按钮文本中提取停车位编号
 void MainWindow::onButtonClickedW() {
     QPushButton *clickedButton = qobject_cast<QPushButton*>(sender());
     if (clickedButton) {
@@ -794,4 +827,4 @@ void MainWindow::onButtonClickedW() {
         }
     }
 
-}
+}//从按钮文本中提取队列位置编号

@@ -53,7 +53,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>查询</string>
+     <string>车辆查询</string>
     </property>
    </widget>
    <widget class="QListWidget" name="listWidget">
@@ -133,7 +133,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>退出</string>
+     <string>车库余位查询</string>
     </property>
    </widget>
    <widget class="QLabel" name="inputlabel">

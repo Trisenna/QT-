@@ -74,34 +74,31 @@ class MainWindow : public QMainWindow {
     }
   private:
     Ui::MainWindow *ui;
+    //调试用的两个按钮
     QPushButton *startButton;
     QPushButton *finishButton;
-    QPixmap imagePixmap; // 用于存储图片
+
+    QPixmap imagePixmap; // 用于存储动画图片
     QPixmap* imageTem;
     QPixmap imageWay;
     QPixmap imageWay2;
 
-    QLabel *imageLabel; // 用于显示图片
-    QLabel *temLable;
-    RotatableLabel *rotationLable;
+    QLabel *imageLabel; // 车辆横向图片
+    QLabel *temLable;//车辆纵向图片
+    RotatableLabel *rotationLable;//车辆旋转图片
     QLabel *imageWayLable;
     QLabel *imageWayLable2;
     QLabel*tem;
-    QPropertyAnimation *animation0,*rotationAnimation;
 
-    QPropertyAnimation *animation,*animation1;
-    QPropertyAnimation *animation2;
+    QPropertyAnimation *animation,*animation0,*animation1,*animation2,*animation3, *rotationAnimation;
 
-    QPropertyAnimation *animation3;
+    QSequentialAnimationGroup animationGroup,animationGroup2;
 
-    QSequentialAnimationGroup animationGroup;
-
-    QSequentialAnimationGroup animationGroup2;
     QVector<QLabel *>* previousImagesList;//停车位按钮上的图片
     QVector<QLabel *>* previousImagesList3;//停车场车辆的图片
     QVector<QLabel *>* previousImagesList2;//便道按钮上的图片
     QVector<QLabel *>* previousImagesList4;//便道车辆的图片
-    QLabel *previousImage;
+    QLabel *previousImage;//用于列表的删除的图片
     int parkingSpaceCount; // 停车位数量
     int parkingSpaceWidth; // 停车位宽度
 
@@ -118,6 +115,7 @@ class MainWindow : public QMainWindow {
     std::vector<Car> carArray;
     //判断此处是否有车
     std::vector<bool> parkingSpaces;
+
     //动画使用的数组及其长宽高,停车场总长度为LONG,最大停车数MAX
     //定义每一个停车位的长度
     int parkingLong ;
