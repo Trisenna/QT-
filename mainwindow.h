@@ -14,6 +14,8 @@
 #include "car.h"
 #include <QMouseEvent>
 
+#include "rotatablelabel.h"
+
 //停车位总长度
 #define LONG 600
 
@@ -80,11 +82,13 @@ class MainWindow : public QMainWindow {
 
     QLabel *imageLabel; // 用于显示图片
     QLabel *temLable;
+    RotatableLabel *rotationLable;
     QLabel *imageWayLable;
     QLabel *imageWayLable2;
     QLabel*tem;
-    QPropertyAnimation *animation0;
-    QPropertyAnimation *animation;
+    QPropertyAnimation *animation0,*rotationAnimation;
+
+    QPropertyAnimation *animation,*animation1;
     QPropertyAnimation *animation2;
 
     QPropertyAnimation *animation3;
