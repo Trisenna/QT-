@@ -5,14 +5,14 @@
 #include <QtCore>
 
 
-//0为停车位进车，2为队列进车，1为只有停车位出车，3为停车位出车，队列进车
+//0为停车位进车，1为只有停车位出车，2为队列进车，3为停车位出车，队列进车
 static int start = 0;
-//变化的停车位
+//停车位
 static int position = 0;
-//变化的队列位置
+//队列位置
 static int lineNum = 0;
-//static int ip = 1;
 
+//
 MainWindow::MainWindow(int MAXSIZE1, int Maxqueue1, QWidget *parent) : QMainWindow(parent)  ,
      ui(new Ui::MainWindow)
 {
@@ -297,11 +297,9 @@ MainWindow::MainWindow(int MAXSIZE1, int Maxqueue1, QWidget *parent) : QMainWind
         //利用start实现只有当开始按钮被点击后才有图片添加
         if(start == 0) {
 
-            //从入口由便道进入第一个候车位
-
             previousImage = new QLabel(this);
             previousImage->setPixmap(imageLabel->pixmap());
-            previousImage->setGeometry(200 + parkingLong * position, 150, parkingLong, parkingWid);
+           // previousImage->setGeometry(200 + parkingLong * position, 150, parkingLong, parkingWid);
             previousImage->setVisible(false);
 
             previousImagesList3->append(previousImage);
@@ -313,36 +311,34 @@ MainWindow::MainWindow(int MAXSIZE1, int Maxqueue1, QWidget *parent) : QMainWind
             parkingWidget->update();
 
 
-        } else if(start == 2) {
+        }
+        else if(start == 2) {
             previousImage = new QLabel(this);
             previousImage->setPixmap(temLable->pixmap());
-            previousImage->setGeometry(0, parkingLong * lineNum, parkingWid, parkingLong);
+           // previousImage->setGeometry(0, parkingLong * lineNum, parkingWid, parkingLong);
             previousImage->setVisible(false);
             previousImagesList4->append(previousImage);
             previousImagesList2->at(lineNum - 1)->setVisible(true);
 
             // 更新布局
             VparkingWidget->update();
-        } else if(start == 3) {
+        }
+        else if(start == 3) {
             previousImage = new QLabel(this);
             previousImage->setPixmap(imageLabel->pixmap());
-            previousImage->setGeometry(200 + parkingLong * position, 100, parkingLong, parkingWid);
+           // previousImage->setGeometry(200 + parkingLong * position, 100, parkingLong, parkingWid);
             previousImage->setVisible(false);
             previousImagesList3->append(previousImage);
             previousImagesList->at(position)->setVisible(true);
-            previousImagesList2->at(lineNum)->setVisible(false);
             // 更新布局
             parkingWidget->update();
 
         }
 
-
-
         imageLabel->setVisible(false);
         temLable->setVisible(false);
 
     });
-
 
     //离开动画
     connect(finishButton, &QPushButton::clicked, [this]() {
@@ -547,7 +543,7 @@ connect(animation1, &QPropertyAnimation::finished, [this]() {
 
 
 
-// 在类的实现文件中实现槽函数
+// 实现槽函数
 void MainWindow::onNameButtonClicked() {
     // 在这里编写与 "进入" 按钮相关的操作
     createCar();

@@ -97,10 +97,10 @@ class MainWindow : public QMainWindow {
     QSequentialAnimationGroup animationGroup;
 
     QSequentialAnimationGroup animationGroup2;
-    QVector<QLabel *>* previousImagesList;
-    QVector<QLabel *>* previousImagesList3;
-    QVector<QLabel *>* previousImagesList2;
-    QVector<QLabel *>* previousImagesList4;
+    QVector<QLabel *>* previousImagesList;//停车位按钮上的图片
+    QVector<QLabel *>* previousImagesList3;//停车场车辆的图片
+    QVector<QLabel *>* previousImagesList2;//便道按钮上的图片
+    QVector<QLabel *>* previousImagesList4;//便道车辆的图片
     QLabel *previousImage;
     int parkingSpaceCount; // 停车位数量
     int parkingSpaceWidth; // 停车位宽度
