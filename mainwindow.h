@@ -13,6 +13,7 @@
 #include "carqueue.h"
 #include "car.h"
 #include <QMouseEvent>
+#include <QDebug>
 
 #include "rotatablelabel.h"
 

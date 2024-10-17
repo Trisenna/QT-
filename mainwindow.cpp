@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "rotatablelabel.h"
-
+#include <QDebug>
 #include <QtCore>
 
 
@@ -243,18 +243,18 @@ MainWindow::MainWindow(int MAXSIZE1, int Maxqueue1, QWidget *parent) : QMainWind
             animation2->setDuration(100);
             animation2->setStartValue(QRect(120 + parkingLong * (position % (MAXSIZE / 2)), 100, parkingLong, parkingWid));
             int yCoordinate;
-if (position < MAXSIZE / 2) {
+           if (position < MAXSIZE / 2) {
     // 第一排
     yCoordinate = 50;
 } else {
-    // 第二排
-    yCoordinate = 120 + parkingWid;
-}
-animation2->setEndValue(QRect(120 + parkingLong * (position % (MAXSIZE / 2)), yCoordinate, parkingLong, parkingWid));
+            // 第二排
+           yCoordinate = 120 + parkingWid;
+           }
+           animation2->setEndValue(QRect(120 + parkingLong * (position % (MAXSIZE / 2)), yCoordinate, parkingLong, parkingWid));
 
             // 添加新的动画到动画组
-           animationGroup.addAnimation(animation0);
-          animationGroup.addAnimation(rotationAnimation);
+            animationGroup.addAnimation(animation0);
+            animationGroup.addAnimation(rotationAnimation);
             animationGroup.addAnimation(animation);
             animationGroup.addAnimation(animation2);
 
@@ -277,7 +277,7 @@ animation2->setEndValue(QRect(120 + parkingLong * (position % (MAXSIZE / 2)), yC
 
             // 创建新的动画
             animation = new QPropertyAnimation(temLable, "geometry");
-            animation->setDuration(500);
+            animation->setDuration(200);
             animation->setStartValue(QRect(40, 1000, parkingWid, parkingLong));
             animation->setEndValue(QRect(40, 20+parkingLong * lineNum, parkingWid, parkingLong));
 
@@ -350,7 +350,7 @@ animation2->setEndValue(QRect(120 + parkingLong * (position % (MAXSIZE / 2)), yC
         if ( !previousImagesList3->isEmpty() && previousImagesList4->isEmpty()) {
             imageLabel->setVisible(true);
 
-            start = 1;
+            start = 1;//只有停车位出车
             previousImagesList->at(position)->setVisible(false);
             previousImagesList3->pop_back();
 
@@ -439,68 +439,103 @@ animation2->setEndValue(QRect(120 + parkingLong * (position % (MAXSIZE / 2)), yC
             // 更新布局
             parkingWidget->update();
 
-        } else if( !previousImagesList3->isEmpty() && !previousImagesList4->isEmpty()) {
+        }
+
+        //start = 3：停车位出车，队列进车
+        else if( !previousImagesList3->isEmpty() && !previousImagesList4->isEmpty()) {
             imageLabel->setVisible(true);
             start = 3;
-            previousImagesList->at(position)->setVisible(false);
-            previousImagesList2->at(lineNum)->setVisible(false);
-            previousImagesList3->pop_back();
-            previousImagesList4->pop_back();
+            // Hide the car images in the parking space and queue
+         previousImagesList->at(position)->setVisible(false);
+
+
+         // Remove the last car images from the lists
+         previousImagesList3->pop_back();
+         previousImagesList4->pop_back();
+
             // 获取并移除最后一个图片
-
-
             animationGroup.stop();
             animationGroup.clear();
-            // 创建新的动画
-            animation = new QPropertyAnimation(imageLabel, "geometry", this);
-            animation->setDuration(1000);
-            animation2 = new QPropertyAnimation(imageLabel, "geometry", this);
-            animation2->setDuration(300);
 
 
+            // Create the animation for the car exiting the parking space
+      animation0 = new QPropertyAnimation(imageLabel, "geometry");
+      animation0->setDuration(100);
+      int yCoordinate;
+      if (position < MAXSIZE / 2) {
+          // First row
+          yCoordinate = 50;
+      } else {
+          // Second row
+          yCoordinate = 120 + parkingWid;
+      }
+      animation0->setStartValue(QRect(120 + parkingLong * (position % (MAXSIZE / 2)), yCoordinate, parkingLong, parkingWid));
+      animation0->setEndValue(QRect(120 + parkingLong * (position % (MAXSIZE / 2)), 100, parkingLong, parkingWid));
 
-            animation->setStartValue(QRect(200 + parkingLong * position, 50, parkingLong, parkingWid));
+      // Create the animation for the car moving out of the garage
+      animation1 = new QPropertyAnimation(imageLabel, "geometry");
+      animation1->setDuration(500);
+      animation1->setStartValue(QRect(120 + parkingLong * (position % (MAXSIZE / 2)), 100, parkingLong, parkingWid));
+      animation1->setEndValue(QRect(400 + 2 * parkingLong, 100, parkingLong, parkingWid));
 
-            animation2->setStartValue(QRect(200 + parkingLong * position, 150, parkingLong, parkingWid));
+            //从队列入库动画
+              animation = new QPropertyAnimation(imageLabel, "geometry");
+              animation->setDuration(1000);
+              animation->setStartValue(QRect(40, 75 + parkingWid / 2 , parkingWid, parkingLong));
+              animation->setEndValue(QRect(120 + parkingLong * (position % (MAXSIZE / 2)), 100, parkingLong, parkingWid));
 
-            animation2->setEndValue(QRect(200 + parkingLong * position, 50, parkingLong, parkingWid));
+              animation2 = new QPropertyAnimation(imageLabel, "geometry");
+              animation2->setDuration(100);
+              animation2->setStartValue(QRect(120 + parkingLong * (position % (MAXSIZE / 2)), 100, parkingLong, parkingWid));
+              if (position < MAXSIZE / 2) {
+                  // First row
+                  yCoordinate = 50;
+              } else {
+                  // Second row
+                  yCoordinate = 120 + parkingWid;
+              }
+            animation2->setEndValue(QRect(120 + parkingLong * (position % (MAXSIZE / 2)), yCoordinate, parkingLong, parkingWid));
 
-            animation->setEndValue(QRect(1400, 50, parkingLong, parkingWid));
-
-            // 添加新的动画到动画组
-            animationGroup.addAnimation(animation2);
-            animationGroup.addAnimation(animation);
-
-
-
-            // 创建新的动画
-            animation = new QPropertyAnimation(imageLabel, "geometry");
-            animation->setDuration(1000);
-
-            animation2 = new QPropertyAnimation(imageLabel, "geometry");
-            animation2->setDuration(300);
-            \
-
-
-            animation->setStartValue(QRect(-100, 50, parkingLong, parkingWid));
-            animation->setEndValue(QRect(200 + parkingLong * position, 50, parkingLong, parkingWid));
-            animation2->setStartValue(QRect(200 + parkingLong * position, 50, parkingLong, parkingWid));
-            animation2->setEndValue(QRect(200 + parkingLong * position, 150, parkingLong, parkingWid));
-
-            \
-            // 添加新的动画到动画组
-            animationGroup.addAnimation(animation);
-            animationGroup.addAnimation(animation2);
-            // 开始新的动画
-            animationGroup.start();
-
-            // 删除图片
+              // Add the animations to the animation group
+              animationGroup.addAnimation(animation0);
+              animationGroup.addAnimation(animation1);
+              animationGroup.addAnimation(animation);
+              animationGroup.addAnimation(animation2);
 
 
+            //移除队列第一张图片并显示队列车辆补位的动画
+      //移除队列第一张图片并显示队列车辆补位的动画
+connect(animation1, &QPropertyAnimation::finished, [this]() {
+    qDebug() << "First car animation finished, removing first car from queue.";
+    if (previousImagesList2->isEmpty()) {
+        qDebug() << "Error: previousImagesList2 is empty!";
+        return;
+    }
+    previousImagesList2->at(0)->setVisible(false);
+    previousImagesList2->removeFirst(); // Remove the first car in the queue
 
-            parkingWidget->update();
-            VparkingWidget->update();
+    // Start the next animation for the remaining cars in the queue
+    auto queueAdvanceGroup = new QSequentialAnimationGroup(this);
+    connect(queueAdvanceGroup, &QSequentialAnimationGroup::finished, queueAdvanceGroup, &QObject::deleteLater); // Ensure proper deletion
 
+    for (int i = 0; i < previousImagesList2->size(); ++i) {
+        qDebug() << "Animating car at index:" << i;
+        auto advanceAnimation = new QPropertyAnimation(previousImagesList2->at(i), "geometry");
+        advanceAnimation->setDuration(500);
+        advanceAnimation->setEasingCurve(QEasingCurve::InOutQuad); // Apply easing curve
+        advanceAnimation->setStartValue(previousImagesList2->at(i)->geometry());
+        advanceAnimation->setEndValue(QRect(40, 75 + parkingWid / 2 + parkingLong * i, parkingWid, parkingLong));
+        queueAdvanceGroup->addAnimation(advanceAnimation);
+    }
+    queueAdvanceGroup->start();
+    qDebug() << "Queue advance animation started.";
+});
+      // Start the animation group
+      animationGroup.start();
+
+      // Update the layout
+      parkingWidget->update();
+      VparkingWidget->update();
         }
     });
 
