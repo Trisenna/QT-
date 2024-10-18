@@ -36,7 +36,7 @@ class MainWindow : public QMainWindow {
     Q_OBJECT
 
   public:
-    MainWindow(int MAXSIZE, int Maxqueue, QWidget *parent = nullptr)
+    MainWindow(int MAXSIZE, int Maxqueue, int T,  QWidget *parent = nullptr)
 
     ;
     ~MainWindow();
@@ -55,9 +55,12 @@ class MainWindow : public QMainWindow {
     int getCarNum();
     int MAXSIZE;
     int Maxqueue;
+    int T;
     //临时停车位
     CarQueue carQueuel;
-  protected:
+
+
+protected:
     //重写父窗口的鼠标点击方法实现覆盖按钮的点击
     void mousePressEvent(QMouseEvent *event) override {
         // 在父窗口中捕获鼠标点击事件
@@ -83,14 +86,14 @@ class MainWindow : public QMainWindow {
     QPixmap imageWay;
     QPixmap imageWay2;
 
-    QLabel *imageLabel; // 车辆横向图片
-    QLabel *temLable;//车辆纵向图片
-    RotatableLabel *rotationLable;//车辆旋转图片
+    QLabel *rightLabel;
+    QLabel *upLable;
+    QLabel *downLable;
     QLabel *imageWayLable;
     QLabel *imageWayLable2;
     QLabel*tem;
 
-    QPropertyAnimation *animation,*animation0,*animation1,*animation2,*animation3, *rotationAnimation;
+    QPropertyAnimation *animation,*animation0,*animation1,*animation2,*animation3, *animation4;
 
     QSequentialAnimationGroup animationGroup,animationGroup2;
 

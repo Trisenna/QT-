@@ -15,6 +15,7 @@ class CarQueue {
 
     int Max;
     CarQueue();
+
     void insert(Car* c) {
         if(size == 0) {
             head = c;
@@ -38,14 +39,14 @@ class CarQueue {
         Car* tem = head; // Assuming 'head' is the pointer to the first node of the linked list
 
         while (tem != nullptr) {
-            qDebug() << tem->license + " " + QString::number(tem->location) + " " + tem->entreTime.toString("yyyy-MM-dd HH:mm:ss") + "\n";
+            qDebug() << tem->license + " " + QString::number(tem->spot) + " " + tem->entreTime.toString("yyyy-MM-dd HH:mm:ss") + "\n";
             tem = tem->next;
         }
     }
     Car* getHead() {
         return head;
     }
-    //最多停五辆
+
     bool isFull() {
         if(size < Max) {
             return false;
@@ -57,6 +58,32 @@ class CarQueue {
     }
     int getsize() {
         return size;
+    }
+
+    void remove(Car* car) {
+        if (head == nullptr) return; // Queue is empty
+
+        if (head == car) {
+            head = head->next;
+            size--;
+            return;
+        }
+
+        Car* prev = head;
+        Car* curr = head->next;
+
+        while (curr != nullptr) {
+            if (curr == car) {
+                prev->next = curr->next;
+                if (curr == last) {
+                    last = prev;
+                }
+                size--;
+                return;
+            }
+            prev = curr;
+            curr = curr->next;
+        }
     }
 
   private:

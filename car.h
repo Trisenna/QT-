@@ -10,15 +10,15 @@ class Car
 {
 public:
     Car();
-    Car(QString license, int location, QDateTime entreTime)
+    Car(QString license, int spot, QDateTime entreTime)
     {  this->license=license;
-        this->location=location;
+        this->spot=spot;
         this->entreTime=entreTime;
 
 
     }
     QString license;
-    int location;
+    int spot;
     QDateTime  entreTime;
     Car* next=NULL;
 };
