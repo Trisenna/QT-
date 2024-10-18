@@ -665,7 +665,7 @@ void MainWindow::deleteCar() {
             QDateTime currentTime = QDateTime::currentDateTime();
             QDateTime entryTime = carArray[i].entreTime;
             int secondsParked = entryTime.secsTo(currentTime);
-            int cost = secondsParked*0.1; // 一秒钟一块钱的费率
+            int cost = secondsParked*0.01; // 一秒钟一分钱的费率
 
             ui->listWidget->addItem("第" + QString::number(i + 1) + "辆车    " + "车牌号:" + carArray[i].license + "    离开"
               "\n停：" + QString::number(secondsParked) + "秒,缴费：" + QString::number(cost) + "元\n");
