@@ -13,7 +13,7 @@
 class CarQueue {
   public:
 
-    int Max;
+    int Maxqueue;
     CarQueue();
 
     void insert(Car* c) {
@@ -32,7 +32,6 @@ class CarQueue {
     Car* get() {
         Car* tem = head;
         head = head->next;
-        size--;
         return tem;
     }
     void show() {
@@ -48,7 +47,8 @@ class CarQueue {
     }
 
     bool isFull() {
-        if(size < Max) {
+
+        if(size < Maxqueue) {
             return false;
         } else return true;
     }
@@ -58,32 +58,6 @@ class CarQueue {
     }
     int getsize() {
         return size;
-    }
-
-    void remove(Car* car) {
-        if (head == nullptr) return; // Queue is empty
-
-        if (head == car) {
-            head = head->next;
-            size--;
-            return;
-        }
-
-        Car* prev = head;
-        Car* curr = head->next;
-
-        while (curr != nullptr) {
-            if (curr == car) {
-                prev->next = curr->next;
-                if (curr == last) {
-                    last = prev;
-                }
-                size--;
-                return;
-            }
-            prev = curr;
-            curr = curr->next;
-        }
     }
 
   private:

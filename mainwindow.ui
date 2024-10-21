@@ -27,7 +27,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QPushButton" name="enterButton">
     <property name="geometry">
      <rect>
       <x>110</x>
@@ -53,7 +53,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>车辆查询</string>
+     <string>车位查询</string>
     </property>
    </widget>
    <widget class="QListWidget" name="listWidget">
@@ -94,7 +94,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton_4">
+   <widget class="QPushButton" name="leaveButton">
     <property name="geometry">
      <rect>
       <x>280</x>
@@ -133,7 +133,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>车库余位查询</string>
+     <string>停车场查询</string>
     </property>
    </widget>
    <widget class="QLabel" name="inputlabel">

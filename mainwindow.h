@@ -15,10 +15,11 @@
 #include <QMouseEvent>
 #include <QDebug>
 
+
 #include "rotatablelabel.h"
 
 //停车位总长度
-#define LONG 600
+#define LONG 800
 
 
 
@@ -26,9 +27,7 @@
 
 
 QT_BEGIN_NAMESPACE
-namespace Ui {
-class MainWindow;
-}
+namespace Ui {class MainWindow   ;}
 QT_END_NAMESPACE
 
 class MainWindow : public QMainWindow {
@@ -36,29 +35,20 @@ class MainWindow : public QMainWindow {
     Q_OBJECT
 
   public:
-    MainWindow(int MAXSIZE, int Maxqueue, int T,  QWidget *parent = nullptr)
-
-    ;
+    MainWindow(int MAXSIZE, int Maxqueue, int T,  QWidget *parent = nullptr);
     ~MainWindow();
 
-    void startAnimation();
-    void animationFinished();
-    void startAnimationGroup();
-    void Creatimage();
-
     void createCar();
-    void addCar();
+    void addCar(int vacatedSpot);
     void deleteCar();
-    void option();
     void showCar();
     void findCar();
     int getCarNum();
-    int MAXSIZE;
-    int Maxqueue;
+   int MAXSIZE;
+  int MAXQUEUE;
     int T;
     //临时停车位
     CarQueue carQueuel;
-
 
 protected:
     //重写父窗口的鼠标点击方法实现覆盖按钮的点击
@@ -77,9 +67,7 @@ protected:
     }
   private:
     Ui::MainWindow *ui;
-    //调试用的两个按钮
-    QPushButton *startButton;
-    QPushButton *finishButton;
+    int start;
 
     QPixmap imagePixmap; // 用于存储动画图片
     QPixmap* imageTem;
@@ -93,14 +81,14 @@ protected:
     QLabel *imageWayLable2;
     QLabel*tem;
 
-    QPropertyAnimation *animation,*animation0,*animation1,*animation2,*animation3, *animation4;
+    QPropertyAnimation *animation,*animation0,*animation1,*animation2,*animation3, *animation4,*advanceAnimation;
 
-    QSequentialAnimationGroup animationGroup,animationGroup2;
+    QSequentialAnimationGroup animationGroup,animationGroup2,*queueAdvanceGroup;
 
-    QVector<QLabel *>* previousImagesList;//停车位按钮上的图片
-    QVector<QLabel *>* previousImagesList3;//停车场车辆的图片
-    QVector<QLabel *>* previousImagesList2;//便道按钮上的图片
-    QVector<QLabel *>* previousImagesList4;//便道车辆的图片
+    QVector<QLabel *>* spotImagesList;//停车位按钮上的图片
+    QVector<QLabel *>* spotImagesList_1;//停车场车辆的图片
+    QVector<QLabel *>* waitImagesList;//便道按钮上的图片
+    QVector<QLabel *>* waitImagesList_1;//便道车辆的图片
     QLabel *previousImage;//用于列表的删除的图片
     int parkingSpaceCount; // 停车位数量
     int parkingSpaceWidth; // 停车位宽度
@@ -108,8 +96,8 @@ protected:
     QHBoxLayout *parkingLayout; // 水平布局管理器
     QHBoxLayout *ButtonLayout; // 水平布局管理器
     QWidget *parkingWidget; // 用于承载水平布局的 QWidget
-    QVBoxLayout *Vparkinglayout;
-    QWidget * VparkingWidget;
+    QVBoxLayout *waitinglayout;
+    QWidget * waitingWidget;
     QVBoxLayout *mainLayout; // 主垂直布局管理器
     QSpacerItem *verticalSpacer; // 垂直间隔控件
     QWidget *ButtonWeight;
