@@ -4,7 +4,7 @@
 
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
-    int MAXSIZE = 10;
+    int MAXSIZE = 20;
     int MAXQUEUE = 5;
     int T=300;
     MainWindow w(MAXSIZE, MAXQUEUE, T);
