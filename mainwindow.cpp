@@ -30,8 +30,7 @@ MainWindow::MainWindow(int MAXSIZE1, int Maxqueue1,int T,  QWidget *parent) : QM
     //动画使用的数组及其长宽高,停车场总长度为LONG,最大停车数MAX。定义每一个停车位的长度
     parkingLong = LONG / MAXSIZE;
     parkingWid = 30 * parkingLong / 54;
-    // 初始化停车位数组，所有位置都设置为未占用（false）
-    parkingSpaces.resize(MAXSIZE, false);
+
     // 创建按钮布局
     ButtonLayout = new QHBoxLayout();
 
@@ -80,11 +79,21 @@ MainWindow::MainWindow(int MAXSIZE1, int Maxqueue1,int T,  QWidget *parent) : QM
         waitingLocate[i - 1]->setMask(region);
         connect(waitingLocate[i - 1], &QPushButton::clicked, this, &MainWindow::onButtonClickedW);
     }
+
     //初始化汽车容器
     for(int i = 0; i < MAXSIZE; i++) {
         Car* newCar = new Car("", -1, QDateTime::currentDateTime());
         carArray.insert(carArray.begin() + i, *newCar);
     }
+    // 初始化停车位数组，所有位置都设置为未占用（false）
+    parkingSpaces.resize(MAXSIZE, false);
+   /* carArray.resize(MAXSIZE);
+    for(int i = 0; i < MAXSIZE; i++) {
+        carArray[i] = Car("", -1, QDateTime::currentDateTime());
+        parkingSpaces[i] = false;
+
+    }*/
+
 
     // 设置布局
     ButtonWeight = new QWidget(this);
@@ -108,9 +117,9 @@ MainWindow::MainWindow(int MAXSIZE1, int Maxqueue1,int T,  QWidget *parent) : QM
     downLable = new QLabel(this);
 
     //设置图片
-    QPixmap newPixmap(":car1.png");//向右
-    QPixmap newPixmap2(":car2.png");//向上
-    QPixmap newPixmap3(":car3.png");//向下
+    QPixmap newPixmap(":carRight.png");//向右
+    QPixmap newPixmap2(":carUp.png");//向上
+    QPixmap newPixmap3(":carDown.png");//向下
     newPixmap = newPixmap.scaled(parkingLong, parkingWid);
     newPixmap2 = newPixmap2.scaled(parkingWid, parkingLong);
     newPixmap3 = newPixmap3.scaled(parkingWid,parkingLong);
@@ -269,6 +278,12 @@ connect(animation2, &QPropertyAnimation::finished, [this]() {
             rightLabel->setGeometry(-400, -100, parkingLong, parkingWid);
             upLable->setGeometry(-400, -100, parkingWid, parkingLong);
             downLable->setGeometry(-400, -100, parkingWid, parkingLong);
+            // 更新停车场车辆状态
+        for (int i = 0; i < MAXSIZE; ++i) {
+            if (parkingSpaces[i]) {
+                spotImagesList->at(i)->setVisible(true);
+            }
+        }
 
             spotImagesList->at(spot)->setVisible(false);
             spotImagesList_1->removeAt(spot);
@@ -425,13 +440,13 @@ connect(animation2, &QPropertyAnimation::finished, [this]() {
           animation4->setDuration(T);
           animation4->setStartValue(QRect(120 +  1.5*parkingWid * (spot % (MAXSIZE / 2)), xCoordinate, parkingWid, parkingLong));
           animation4->setEndValue(QRect(120 +  1.5*parkingWid * (spot % (MAXSIZE / 2)), yCoordinate, parkingWid, parkingLong));
-            connect(animation4, &QPropertyAnimation::finished, [this]() {
+            connect(animation4, &QPropertyAnimation::finished, [this, T]() {
              downLable->hide();
              queueAdvanceGroup->stop();
              queueAdvanceGroup->clear();
              for (int i = MAXQUEUE - lineNum; i <MAXQUEUE; i++) {
                  auto advanceAnimation = new QPropertyAnimation(waitImagesList->at(i), "geometry");
-                 advanceAnimation->setDuration(500);
+                 advanceAnimation->setDuration(T);
                  advanceAnimation->setStartValue(waitImagesList->at(i)->geometry());
                 advanceAnimation->setEndValue(waitImagesList->at(i-1)->geometry());
                 queueAdvanceGroup->addAnimation(advanceAnimation);
@@ -533,10 +548,9 @@ waitingWidget->update();
 
     connect(ui->enterButton, SIGNAL(clicked()), this, SLOT(onNameButtonClicked()));
     connect(ui->leaveButton, SIGNAL(clicked()), this, SLOT(onLeaveButtonClicked()));
-    connect(ui->pushButton_2, SIGNAL(clicked()), this, SLOT(onFindButtonClicked()));
-    connect(ui->pushButton_8, SIGNAL(clicked()), this, SLOT(onShowButtonClicked()));
+    connect(ui->queryButton_1, SIGNAL(clicked()), this, SLOT(onFindButtonClicked()));
+    connect(ui->queryButton_2, SIGNAL(clicked()), this, SLOT(onShowButtonClicked()));
    }
-
 
 
 // 实现槽函数
@@ -580,7 +594,7 @@ void MainWindow::createCar() {
         if (carQueuel.getsize() < MAXQUEUE) {
             lineNum++;
             carQueuel.insert(newCar);
-            ui->listWidget->addItem("停车场已满," + st + "进入便道\n");
+            ui->listWidget->addItem("停车场已满," + st + "进入侯车位"+QString::number(lineNum)+"\n");
             ui->listWidget->scrollToBottom();
             start = 2;
             ui->enterButton->click();
@@ -592,16 +606,16 @@ void MainWindow::createCar() {
     }
 
     //随机分配一个车位号
-    int randomIndex;
+    int randomSpot;
     do {
-        randomIndex = QRandomGenerator::global()->bounded(MAXSIZE);
-    } while (parkingSpaces[randomIndex]);
+        randomSpot = QRandomGenerator::global()->bounded(MAXSIZE);
+    } while (parkingSpaces[randomSpot]);
 
-    newCar->spot = randomIndex;
-    spot = randomIndex;
-    carArray[randomIndex] = *newCar;
-    parkingSpaces[randomIndex] = true;
-    ui->listWidget->addItem(carArray[randomIndex].license + "进入停车场\n");
+    newCar->spot = randomSpot+1;
+    spot = randomSpot;
+    carArray[randomSpot] = *newCar;
+    parkingSpaces[randomSpot] = true;
+    ui->listWidget->addItem(carArray[randomSpot].license + "进入停车位"+QString::number(carArray[randomSpot].spot)+"\n");
     ui->listWidget->scrollToBottom();
     start = 0; // Parking lot entry animation
     ui->enterButton->click();
@@ -617,12 +631,10 @@ void MainWindow::addCar(int vacatedSpot) {
         spot = availableSpot;
         c->spot = availableSpot;
         c->entreTime = QDateTime::currentDateTime();
-        carArray[availableSpot] = *c;
-        carArray[availableSpot].license = c->license;
-        carArray[availableSpot].spot = true;
-        ui->listWidget->addItem(c->license + "进入停车位" + QString::number(c->spot+1 )+"\n");
+        carArray[availableSpot-1] = *c;
+        ui->listWidget->addItem(c->license + "进入停车位" + QString::number(c->spot )+"\n");
         ui->listWidget->scrollToBottom();
-        parkingSpaces[availableSpot] = true;
+        parkingSpaces[availableSpot-1] = true;
         start = 3;
         ui->leaveButton->click();
         ui->enterButton->click();
@@ -633,41 +645,43 @@ void MainWindow::addCar(int vacatedSpot) {
 }
 //车辆离开停车位
 void MainWindow::deleteCar() {
-    QString licensePlate = ui->lineEdit->text();
+   /* QString licensePlate = ui->lineEdit->text();
     bool isNumber;
-    int spotIndex = licensePlate.toInt(&isNumber) - 1;
+    int spotIndex = licensePlate.toInt(&isNumber);
+    spotIndex--;
     ui->lineEdit->clear();
+    */
+    int spotIndex = ui->lineEdit->text().toInt() ;
+    ui->lineEdit->clear();
+        if (spotIndex >0 && spotIndex <= MAXSIZE && parkingSpaces[spotIndex-1]) {
 
-    if (isNumber&&spotIndex >= 0 && spotIndex < MAXSIZE) {
-        if (parkingSpaces[spotIndex]) {
-            spot = spotIndex;
+                spot = spotIndex-1;
+                parkingSpaces[spot] = false;
+                QDateTime currentTime = QDateTime::currentDateTime();
+                QDateTime entryTime = carArray[spot].entreTime;
+                int secondsParked = entryTime.secsTo(currentTime);
+                double cost = secondsParked * 0.01; // 一秒钟一分钱的费率
 
-            parkingSpaces[spotIndex] = false;
-            QDateTime currentTime = QDateTime::currentDateTime();
-            QDateTime entryTime = carArray[spotIndex].entreTime;
-            int secondsParked = entryTime.secsTo(currentTime);
-            double cost = secondsParked * 0.01; // 一秒钟一分钱的费率
+                ui->listWidget_3->addItem("第" + QString::number(spotIndex) + "辆车    " + "车牌号:" + carArray[spot].license + "    离开"
+                  "\n停：" + QString::number(secondsParked) + "秒,缴费：" + QString::number(cost) + "元\n");
+                ui->listWidget_3->scrollToBottom();
+                carArray[spot].license = "";
+                carArray[spot].spot = -1;
 
-            ui->listWidget->addItem("第" + QString::number(spotIndex + 1) + "辆车    " + "车牌号:" + carArray[spotIndex].license + "    离开"
-              "\n停：" + QString::number(secondsParked) + "秒,缴费：" + QString::number(cost) + "元\n");
-            ui->listWidget->scrollToBottom();
-            carArray[spotIndex].license = "";
-            carArray[spotIndex].spot = -1;
-
-            // 检查队列是否为空
-            if(carQueuel.isEmpty()) {
-                start = 1; // 只有停车位腾出
-                ui->leaveButton->click();
-            }else {
-                start = 3; // 停车位腾出，队列中的车进入
-                addCar(spotIndex); // 传递腾出的停车位索引
+                // 检查队列是否为空
+                if(carQueuel.isEmpty()) {
+                    start = 1; // 只有停车位腾出
+                    ui->leaveButton->click();
+                } else {
+                    start = 3; // 停车位腾出，队列中的车进入
+                    addCar(spotIndex); // 传递腾出的停车位索引
+                }
+            } else {
+                ui->listWidget->addItem("此处无车");
+                ui->listWidget->scrollToBottom();
             }
-        } else {
-            ui->listWidget->addItem("此处无车");
-            ui->listWidget->scrollToBottom();
-        }
-    }
-    return;
+
+
 }
 void MainWindow::showCar() {
     int num = 0;
@@ -820,8 +834,7 @@ void MainWindow::onButtonClickedW() {
             ui->listWidget->scrollToBottom();
         }
   }
-}
-/*
+}/*
 void MainWindow::onButtonClickedP() {
     QPushButton *clickedButton = qobject_cast<QPushButton*>(sender());
     if (clickedButton) {
@@ -847,16 +860,17 @@ void MainWindow::onButtonClickedP() {
             carArray[index].license = "";
             carArray[index].spot = -1;
 
-            // 设置 start 的值
-            if (!carQueuel.isEmpty()) {
-                start = 3; // 停车位出车，队列进车
+            if(carQueuel.isEmpty()) {
+                start = 1; // 只有停车位腾出
+                ui->leaveButton->click();
             } else {
-                start = 1; // 只有停车位出车
+                start = 3; // 停车位腾出，队列中的车进入
+                addCar(index+1); // 传递腾出的停车位索引
             }
 
             // Trigger the leave animation
             spot = index;
-            ui->pushButton_4->click();
+            ui->leaveButton->click();
         } else {
             ui->listWidget->addItem("此处无车\n");
         }

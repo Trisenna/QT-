@@ -16,8 +16,6 @@
 #include <QDebug>
 
 
-#include "rotatablelabel.h"
-
 //停车位总长度
 #define LONG 800
 

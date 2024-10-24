@@ -17,7 +17,6 @@ set(PROJECT_SOURCES
         mainwindow.cpp
         mainwindow.h
         mainwindow.ui
-        RotatableLabel.h
         res.qrc
         carqueue.h carqueue.cpp
         car.h
