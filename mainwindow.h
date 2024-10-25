@@ -42,6 +42,7 @@ class MainWindow : public QMainWindow {
     void showCar();
     void findCar();
     int getCarNum();
+    void updateParkingStatus();
    int MAXSIZE;
   int MAXQUEUE;
     int T;
@@ -66,6 +67,8 @@ protected:
   private:
     Ui::MainWindow *ui;
     int start;
+    QPushButton *startButton;
+    QPushButton *finishButton;
 
     QPixmap imagePixmap; // 用于存储动画图片
     QPixmap* imageTem;
