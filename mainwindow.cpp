@@ -111,7 +111,6 @@ MainWindow::MainWindow(int MAXSIZE1, int Maxqueue1,int T,  QWidget *parent) : QM
     finishButton = new QPushButton("Finish", this);
     finishButton->setGeometry(-200, 10, 150, 30);
 
-
     startButton->setVisible(false);
     finishButton->setVisible(false);
 
@@ -460,9 +459,22 @@ connect(animation2, &QPropertyAnimation::finished, [this]() {
                 queueAdvanceGroup->addAnimation(advanceAnimation);
              }
                 connect(queueAdvanceGroup, &QSequentialAnimationGroup::finished, [this]() {
-        for (int i = MAXQUEUE-lineNum; i <MAXQUEUE; i++) {
+      /*  for (int i = MAXQUEUE-lineNum; i <MAXQUEUE; i++) {
             waitImagesList->at(i)->setVisible(true);
+        }*/
+                    //显示便道按钮上的图片
+                        Car* tem = carQueuel.getHead();
+    int i = 1;
+    if(tem != NULL) {
+        while (tem != NULL) {
+            if (!tem->license.isEmpty() && tem->entreTime.isValid()) {
+                waitImagesList->at(i)->setVisible(true);
+                i++;
+            }
+            tem = tem->next;
         }
+    }
+
     });
              queueAdvanceGroup->start();
              parkingWidget->update();
@@ -522,12 +534,15 @@ previousImage->setPixmap(upLable->pixmap());
 previousImage->setVisible(false);
 waitImagesList_1->append(previousImage);
 //显示便道按钮上的图片
-for(int i=0;i<lineNum;i++) {
-    waitImagesList->at(i)->setVisible(true);
-}
 
-
+            for (int i = 0; i < MAXQUEUE; ++i) {
+                if (!carQueuel.isEmpty() && carQueuel.at(i) != nullptr && !carQueuel.at(i)->license.isEmpty()) {
+        waitImagesList->at(i)->setVisible(true);
+             waitImagesList->at(i)->setVisible(true);
+         }
+     }
 // 更新布局
+parkingWidget->update();
 waitingWidget->update();
         }
         else if(start == 3) {
@@ -562,37 +577,31 @@ waitingWidget->update();
     connect(ui->queryButton_1, SIGNAL(clicked()), this, SLOT(onFindButtonClicked()));
     connect(ui->queryButton_2, SIGNAL(clicked()), this, SLOT(onShowButtonClicked()));
    }
-
-
+//析构函数
+MainWindow::~MainWindow() {
+    delete ui;
+}
 // 实现槽函数
 void MainWindow::onNameButtonClicked() {
     // 在这里编写与 "进入" 按钮相关的操作
     createCar();
     updateParkingStatus();
 }
-
 void MainWindow::onFindButtonClicked() {
     // 在这里编写与 "查找" 按钮相关的操作
     findCar();
     updateParkingStatus();
 }
-
 void MainWindow::onShowButtonClicked() {
     // 在这里编写与 "车库余位查询" 按钮相关的操作
     showCar();
     updateParkingStatus();
 }
-
 void MainWindow::onLeaveButtonClicked() {
     deleteCar();
     updateParkingStatus();
 }
-//析构函数
-MainWindow::~MainWindow() {
-    delete ui;
-}
-
-//车辆进入停车位或便道
+//按钮点击事件
 void MainWindow::createCar() {
     QString st = ui->lineEdit->text();
     if (st.isEmpty()) {
@@ -657,7 +666,6 @@ void MainWindow::createCar() {
     start = 0; // Parking lot entry animation
     startButton->click();
 }
-//便道车辆入库
 void MainWindow::addCar(int vacatedSpot) {
     if (!carQueuel.isEmpty()) {
         // 使用腾出的停车位
@@ -674,14 +682,12 @@ void MainWindow::addCar(int vacatedSpot) {
         parkingSpaces[availableSpot-1] = true;
         start = 3;
         finishButton->click();
-        startButton->click();
 
         lineNum--;
         waitImagesList_1->pop_front();
 
     }
 }
-//车辆离开停车位
 void MainWindow::deleteCar() {
     QString input = ui->lineEdit->text();  // 用户输入的车牌号或车位号
     ui->lineEdit->clear();
@@ -691,12 +697,12 @@ void MainWindow::deleteCar() {
     int inputSpot = input.toInt(&isNumber);  // 判断输入的是不是数字
     if (isNumber && inputSpot > 0 && inputSpot <= MAXSIZE) {
         // 输入的是车位号
-        spotIndex = inputSpot - 1;  // 数组索引从0开始
+        spotIndex = inputSpot ;
     } else {
         // 输入的是车牌号，遍历查找对应的车位号
         for (int i = 0; i < MAXSIZE; ++i) {
             if (carArray[i].license == input) {
-                spotIndex = i;
+                spotIndex = i+1;
                 break;
             }
         }
@@ -848,33 +854,6 @@ int MainWindow::getCarNum() {
     std::cout << i;
     return i;
 }
-/*
-void MainWindow::onButtonClickedP() {
-    QPushButton *clickedButton = qobject_cast<QPushButton*>(sender());
-    if (clickedButton) {
-        QString buttonText = clickedButton->text();
-        // Extract the number from the button text
-        QString numberString = buttonText.mid(1);
-        bool ok;
-        int number = numberString.toInt(&ok);
-
-        if (ok && number > 0 && number <= MAXSIZE && parkingSpaces[number - 1]) {
-            // Get the car information from the parking space
-            int index = number - 1;
-            Car car = carArray[index];
-            QDateTime entryTime = car.entreTime;
-            QString license = car.license;
-
-            // Display the car information
-            ui->listWidget->addItem("第" + QString::number(number) + "个停车位    " + "车牌号:" + license +
-                                    "\n入库时间：" + entryTime.toString("yyyy-MM-dd HH:mm:ss") + "\n");
-        ui->listWidget->scrollToBottom();
-        } else {
-            ui->listWidget->addItem("此处无车\n");
-            ui->listWidget->scrollToBottom();
-        }
-    }
-}*/
 void MainWindow::onButtonClickedW() {
     QPushButton *clickedButton = qobject_cast<QPushButton*>(sender());
     if (clickedButton) {
@@ -914,7 +893,7 @@ void MainWindow::onButtonClickedP() {
             int secondsParked = entryTime.secsTo(currentTime);
             double cost = secondsParked * 0.01; // Fee rate: 0.01 per second
 
-            ui->listWidget->addItem("第" + QString::number(number) + "个停车位    " + "车牌号:" + carArray[index].license + "    离开"
+            ui->listWidget_3->addItem("第" + QString::number(number) + "个停车位    " + "车牌号:" + carArray[index].license + "    离开"
               "\n停：" + QString::number(secondsParked) + "秒,缴费：" + QString::number(cost) + "元\n");
 
             // Clear the car data
@@ -936,4 +915,4 @@ void MainWindow::onButtonClickedP() {
             ui->listWidget->addItem("此处无车\n");
         }
     }
-}//点击停车场停车位按钮出库
+}

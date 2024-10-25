@@ -56,6 +56,18 @@ public:
         }
     }
 
+    Car* at(int index) {
+        if (index < 0 || index >= size) {
+            qDebug() << "Index out of bounds.";
+            return nullptr; // 或者抛出异常
+        }
+
+        Car* tem = head;
+        for (int i = 0; i < index; ++i) {
+            tem = tem->next;
+        }
+        return tem;
+    }
     // 获取队列的第一个车辆
     Car* getHead() {
         return head;

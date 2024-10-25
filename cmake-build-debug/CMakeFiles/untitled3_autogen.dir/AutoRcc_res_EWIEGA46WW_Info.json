@@ -5,7 +5,7 @@
 	"CMAKE_CURRENT_SOURCE_DIR" : "D:/CLion/QT-ParkingLot",
 	"CMAKE_SOURCE_DIR" : "D:/CLion/QT-ParkingLot",
 	"CROSS_CONFIG" : false,
-	"GENERATOR" : "Ninja",
+	"GENERATOR" : "MinGW Makefiles",
 	"INCLUDE_DIR" : "D:/CLion/QT-ParkingLot/cmake-build-debug/untitled3_autogen/include",
 	"INPUTS" : 
 	[
